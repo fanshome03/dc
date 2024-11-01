@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>   سلسلة افلام DC  </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #000010;
+            color: white;
+            overflow: auto;
+        }
+        .loader-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000010;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loader {
+            border: 10px solid #fff;
+            border-top: 10px solid #e6b800;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .content {
+    display: block; /* تأكد من عرض المحتوى بشكل صحيح */
+    height: auto; /* السماح للتمرير للأسفل */
+    overflow: auto; /* السماح بالتمرير في القسم */
+}
+
+.video-player {
+    width: 100vw;
+    height: 56vw;
+    position: relative; /* لجعل المشغل غير مثبت */
+    margin-left: auto;
+    margin-right: auto;
+    background-color: black;
+}
+
+video {
+    width: 100%;
+    height: 100%;
+}
+        .pin-indicator {
+            position: absolute;
+            top: -3px;
+            right: -5px;
+            width: 150px;
+            height: 150px;
+        }
+        .video-info {
+            padding: 10px;
+            margin-top: 5px; /* مسافة طبيعية بين قسم العنوان وقسم القناة */
+        }
+        .video-title {
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #e6e6e6;
+            transition: color 0.3s ease;
+        }
+        .video-title:hover {
+            color: #e6b800;
+        }
+        .video-description {
+            display: none;
+            font-size: 14px;
+            color: #ddd;
+            margin: 5px 0;
+        }
+        .video-year {
+            font-size: 12px;
+            color: #909090;
+            margin-top: 5px;
+        }
+        .channel-info {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-top: -13px; /* تقليل المسافة إلى -5 */
+            
+        }
+        .channel-info img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .channel-info .channel-name {
+            font-size: 16px;
+            color: #e6e6e6;
+            font-weight: bold;
+        }
+        .suggested-videos {
+            margin-top: 10px; /* مسافة طبيعية بين العنوان وقسم المقترحات */
+            padding-left: 10px;
+            max-height: 400px;
+            overflow-y: auto; /* السماح بالتمرير */
+            display: flex;
+            flex-direction: column;
+        }
+        .suggested-video {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+        .suggested-video:hover {
+            background-color: #000010;
+            border-radius: 8px;
+        }
+        .suggested-video img {
+            width: 120px;
+            height: 67px;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+        .suggested-video .details .title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #e6e6e6;
+        }
+        .suggested-video .details .channel {
+            font-size: 12px;
+            color: #909090;
+        }
+        .suggested-video .details .year {
+            font-size: 12px;
+            color: #909090;
+        }
+        /* نافذة الاختيار */
+        .quality-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 10000;
+            color: white;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .quality-popup h3 {
+            margin: 0 0 10px;
+        }
+        .quality-option {
+            margin: 5px 0;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .quality-option:hover {
+            background-color: #e6b800;
+        }
+        /* خيارات التحكم */
+        .controls-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 10000;
+            color: white;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        .controls-popup h3 {
+            margin: 0 0 10px;
+        }
+        .control-option {
+            margin: 5px 0;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .control-option:hover {
+            background-color: #e6b800;
+        }
+    </style>
+</head>
+<body>
+
+<div class="loader-wrapper" id="loader-wrapper">
+    <div class="loader"></div>
+</div>
+
+<div class="content">
+    <div class="video-player" id="main-video">
+        <video id="video" controls>
+            <source src="https://firebasestorage.googleapis.com/v0/b/mare-c9dc2.appspot.com/o/%D8%AA%D8%B1%D9%88%D9%8A%D8%AC%2Flv_0_%D9%A2%D9%A0%D9%A2%D9%A4%D9%A0%D9%A4%D9%A2%D9%A7%D9%A2%D9%A2%D9%A1%D9%A9%D9%A4%D9%A3.mp4?alt=media&token=70dcb001-0ebe-4812-99d2-ec21898048d2" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+   
+    </div>
+
+    <div class="video-info">
+        <div class="video-title" onclick="toggleDescription()"> الترتيب الصحيح لمشاهدة افلام عالم دي سي
+      </div>
+        <div class="video-year" id="fixed-year">  اتبع الترتيب أدناه دون القلق بشأن سنوات الإنتاج لتحصل على تسلسل الأحداث الصحيح.
+        
+        </div>
+        <div class="video-description">
+    	
+    	تُعتبر سلسلة أفلام عالم دي سي السينمائي أقوى سلسلة للأبطال الخارقين بلا منازع، حيث تجمع بين قصص ملحمية وشخصيات ذات قوى مذهلة، مما يجعلها تجربة سينمائية استثنائية
+    	 
+    		  </div>
+    </div>
+
+    <div class="channel-info">
+        <img src="https://www.babup.com/do.php?img=93513" alt="Channel Logo">
+        <div class="channel-name">Fans Home</div>
+    </div>
+
+    <hr style="border: 1px solid #fff; margin: 10px 0;">
+
+    <div class="suggested-videos">
+        <h3>| Start watching</h3>
+      
+        <div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Wonder%20Woman%202017/Wonder%20Woman%202017%20480p.mp4', 'https://cdn.animewitcher.com/Movies/Wonder%20Woman%202017/Wonder%20Woman%202017%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Wonder%20Woman%202017/Wonder%20Woman%202017%20360p.mp4', ' Wonder Woman')">
+            <img src="https://s01.babup.com/uploads/MV5BZWVhYzE0NzgtM2U1Yi00OWM1LWJlZTUtZmNkNWZhM2VkMDczXkEyXkFqcGdeQW1yb3NzZXI-V1-QL75-UY281-CR160500281-.jpg" alt="Thumbnail">
+            <div class="details">
+                <div class="title"> Wonder Woman     </div>
+                <div class="channel">مترجم  بالعربي</div>
+                <div class="year">| 2017 </div>
+            </div>
+        </div>
+       
+       
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Wonder%20Woman%201984%202020/Wonder%20Woman%201984%202020%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Wonder%20Woman%201984%202020/Wonder%20Woman%201984%202020%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Wonder%20Woman%201984%202020/Wonder%20Woman%201984%202020%20480p.mp4', 'Wonder Woman 1984')">
+    <img src="https://s01.babup.com/uploads/64d7af74-3fc9-4be5-b36b-d31603df9bbd-w960-r1-778-fpx72-55-fpy54-98.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Wonder Woman 1984 </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2020</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Man%20of%20Steel%202013/Man%20of%20Steel%202013%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Man%20of%20Steel%202013/Man%20of%20Steel%202013%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Man%20of%20Steel%202013/Man%20of%20Steel%202013%20480p.mp4', 'Man of Steel')">
+    <img src="https://s01.babup.com/uploads/download-2-_f8faf.jpeg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Man of Steel </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2013</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Batman%20v%20Superman%20Dawn%20of%20Justice%202016/Batman%20v%20Superman%20Dawn%20of%20Justice%202016%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Batman%20v%20Superman%20Dawn%20of%20Justice%202016/Batman%20v%20Superman%20Dawn%20of%20Justice%202016%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Batman%20v%20Superman%20Dawn%20of%20Justice%202016/Batman%20v%20Superman%20Dawn%20of%20Justice%202016%20480p.mp4', 'Batman v Superman: Dawn of Justice')">
+    <img src="https://s01.babup.com/uploads/ad2aaac89ec2b60827bd1acb74bb181abd1efd24bdce25db21f4f6bd1588db47-SX1080-FMjpg-.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Batman v Superman: Dawn of Justice </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2016</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Suicide%20Squad%202016/Suicide%20Squad%202016%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Suicide%20Squad%202016/Suicide%20Squad%202016%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Suicide%20Squad%202016/Suicide%20Squad%202016%20480p.mp4', 'Suicide Squad')">
+    <img src="https://s01.babup.com/uploads/hq720_7d8ba.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Suicide Squad </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2016</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://bit.ly/4f9SCfP', 'https://bit.ly/4f9SCfP', 'https://bit.ly/4f9SCfP', 'Justice League')">
+    <img src="https://s01.babup.com/uploads/zack-snyder-justice-league-trailer.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Justice League </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2017</div>
+    </div>
+</div>
+
+
+
+
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Aquaman%202018/Aquaman%202018%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Aquaman%202018/Aquaman%202018%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Aquaman%202018/Aquaman%202018%20480p.mp4', 'Aquaman')">
+    <img src="https://s01.babup.com/uploads/Aquaman.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Aquaman </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2018</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Shazam%202019/Shazam%202019%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Shazam%202019/Shazam%202019%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Shazam%202019/Shazam%202019%20360p.mp4', 'Shazam!')">
+    <img src="https://s01.babup.com/uploads/db0ff6a6-9ad2-44e3-a4f1-6176b6086c16.jpeg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Shazam! </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2019</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Birds%20of%20Prey%202020/Birds%20of%20Prey%202020%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Birds%20of%20Prey%202020/Birds%20of%20Prey%202020%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Birds%20of%20Prey%202020/Birds%20of%20Prey%202020%20480p.mp4', 'Birds of Prey')">
+    <img src="https://s01.babup.com/uploads/download-3-_b3108.jpeg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Birds of Prey </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2020</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/The%20Suicide%20Squad%202021/The%20Suicide%20Squad%202021%20720p.mp4', 'https://cdn.animewitcher.com/Movies/The%20Suicide%20Squad%202021/The%20Suicide%20Squad%202021%201080p.mp4', 'https://cdn.animewitcher.com/Movies/The%20Suicide%20Squad%202021/The%20Suicide%20Squad%202021%20480p.mp4', 'The Suicide Squad')">
+    <img src="https://s01.babup.com/uploads/MV5BOTM2NjY0ZmQtZDVmMi00YjQ1LWJiNGMtOWI5Y2I1NzcxNjAxXkEyXkFqcGc-V1-.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> The Suicide Squad </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2021</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Black%20Adam%202022/Black%20Adam%202022%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Black%20Adam%202022/Black%20Adam%202022%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Black%20Adam%202022/Black%20Adam%202022%20480p.mp4', 'Black Adam')">
+    <img src="https://s01.babup.com/uploads/MV5BYjgxYjcxYzktOTNhNi00MmU0LWJkZmMtMjEwNmY1NGI1MzU1XkEyXkFqcGdeQXZ3ZXNsZXk-V1-.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Black Adam </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2022</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Shazam!%20Fury%20of%20the%20Gods%202023/Shazam!%20Fury%20of%20the%20Gods%202023%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Shazam!%20Fury%20of%20the%20Gods%202023/Shazam!%20Fury%20of%20the%20Gods%202023%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Shazam!%20Fury%20of%20the%20Gods%202023/Shazam!%20Fury%20of%20the%20Gods%202023%20480p.mp4', 'Shazam! Fury of the Gods')">
+    <img src="https://s01.babup.com/uploads/MV5BYTZmOTE2MGQtMzg5NC00OGUwLTgyYTctMDQ1YTM5YTU3YTdjXkEyXkFqcGdeQWRvb2xpbmhk-V1-QL75-UX500-CR00500281-.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Shazam! Fury of the Gods </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2023</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/The%20Flash%202023/The%20Flash%202023%20720p.mp4', 'https://cdn.animewitcher.com/Movies/The%20Flash%202023/The%20Flash%202023%201080p.mp4', 'https://cdn.animewitcher.com/Movies/The%20Flash%202023/The%20Flash%202023%20480p.mp4', 'The Flash')">
+    <img src="https://s01.babup.com/uploads/MV5BZDI5MjVmOWItYjgyZC00M2ZkLWE3ZTItNGE0ZDM1MjU3ZWVhXkEyXkFqcGc-V1-.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> The Flash </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2023</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Blue%20Beetle%202023/Blue%20Beetle%202023%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Blue%20Beetle%202023/Blue%20Beetle%202023%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Blue%20Beetle%202023/Blue%20Beetle%202023%20480p.mp4', 'Blue Beetle')">
+    <img src="https://s01.babup.com/uploads/rev-1-BBD-03036rv9-High-Res-JPEG.jpeg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Blue Beetle </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2023</div>
+    </div>
+</div>
+
+<div class="suggested-video" onclick="showQualityOptions('https://cdn.animewitcher.com/Movies/Aquaman%20and%20the%20Lost%20Kingdom%202023/Aquaman%20and%20the%20Lost%20Kingdom%202023%20720p.mp4', 'https://cdn.animewitcher.com/Movies/Aquaman%20and%20the%20Lost%20Kingdom%202023/Aquaman%20and%20the%20Lost%20Kingdom%202023%201080p.mp4', 'https://cdn.animewitcher.com/Movies/Aquaman%20and%20the%20Lost%20Kingdom%202023/Aquaman%20and%20the%20Lost%20Kingdom%202023%20480p.mp4', 'Aquaman and the Lost Kingdom')">
+    <img src="https://s01.babup.com/uploads/1-WllMDALgblujLnj9QCAAxA.jpg" alt="Thumbnail">
+    <div class="details">
+        <div class="title"> Aquaman and the Lost Kingdom </div>
+        <div class="channel">مترجم بالعربي</div>
+        <div class="year">| 2023</div>
+    </div>
+</div>
+
+
+
+
+    </div>
+</div>
+
+<!-- نافذة اختيار الجودة -->
+<div class="quality-popup" id="quality-popup">
+    <h3>حدد جودة الفيلم</h3>
+    <div class="quality-option" onclick="playVideo('medium')">متوسطة</div>
+    <div class="quality-option" onclick="playVideo('high')">عالية</div>
+    <div class="quality-option" onclick="playVideo('low')">منخفضة</div>
+</div>
+
+<!-- نافذة خيارات التحكم -->
+<div class="controls-popup" id="controls-popup">
+    <h3>خيارات التحكم</h3>
+    <div class="control-option" onclick="toggleFullScreen()">توسيع الشاشة</div>
+    <div class="control-option" onclick="togglePlaybackSpeed()">تغيير سرعة التشغيل</div>
+</div>
+
+<script>
+    document.getElementById('loader-wrapper').style.display = 'none';
+    document.getElementById('main-video').style.display = 'block';
+    document.querySelector('.content').style.display = 'block';
+
+    function toggleDescription() {
+        const description = document.querySelector('.video-description');
+        description.style.display = description.style.display === 'block' ? 'none' : 'block';
+    }
+
+    let currentVideoQuality = {
+        medium: 'video2-medium.mp4',
+        high: 'video2-high.mp4',
+        low: 'video2-low.mp4'
+    };
+
+    function showQualityOptions(medium, high, low, title) {
+        currentVideoQuality = { medium, high, low };
+        const video = document.getElementById('video');
+        video.src = medium; // تعيين الجودة المتوسطة كبداية
+        document.getElementById('fixed-year').innerText = "Powered by Fans Home "; // تحديث السنة
+        document.querySelector('.video-title').innerText = title; // تحديث العنوان
+        document.getElementById('quality-popup').style.display = 'block'; // إظهار نافذة الجودة
+    }
+
+    function playVideo(quality) {
+        const video = document.getElementById('video');
+        video.src = currentVideoQuality[quality]; // تعيين مصدر الفيديو بناءً على الجودة المختارة
+        video.play();
+        document.getElementById('quality-popup').style.display = 'none'; // إخفاء نافذة الجودة
+    }
+
+    // خيارات التحكم
+    function toggleFullScreen() {
+        const video = document.getElementById('video');
+        if (video.requestFullscreen) {
+            video.requestFullscreen();
+        } else if (video.webkitRequestFullscreen) { // Safari
+            video.webkitRequestFullscreen();
+        } else if (video.msRequestFullscreen) { // IE11
+            video.msRequestFullscreen();
+        }
+        document.getElementById('controls-popup').style.display = 'none'; // إخفاء نافذة التحكم
+    }
+
+    function togglePlaybackSpeed() {
+        const video = document.getElementById('video');
+        video.playbackRate = video.playbackRate === 1 ? 1.5 : 1; // تغيير السرعة بين 1 و 1.5
+        document.getElementById('controls-popup').style.display = 'none'; // إخفاء نافذة التحكم
+    }
+
+    // إظهار خيارات التحكم عند النقر على المشغل
+    document.getElementById('video').addEventListener('click', function() {
+        document.getElementById('controls-popup').style.display = 'block'; // إظهار خيارات التحكم
+    });
+</script>
+
+</body>
+</html>
